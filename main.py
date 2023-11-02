@@ -44,20 +44,27 @@ def q_list():
         print("You have no questions for the quiz.")
         return
 
-    print("REVIEW QUESTIONS\n")
+    print("REVIEW QUESTIONS:")
 
     for q in questions:
         print(
-            "QUESTION: " + q['question'] + "\n" +
+            "\nQUESTION: " + q['question'] + "\n" +
             "ANSWER: " + q['answer']
         )
 
 @cmd.command(no_args_is_help=True, help="Creates a question. If the delete flag is passed, the question will be deleted (if found).")
 def question(question: str, answer: str, add: bool=True, delete: bool=False):
 
-    qestion_exists, location = questionExists(question)
-    if add:
-        if qestion_exists:
+    question_exists, location = questionExists(question)
+    if delete:
+        if question_exists:
+            questions.pop(location)
+            print("Question removed.")
+            saveData()
+            return
+        print("Question doesn't exist.")
+    elif add:
+        if question_exists:
             print("You already have this question.")
             return
         questions.append({
@@ -67,13 +74,7 @@ def question(question: str, answer: str, add: bool=True, delete: bool=False):
         })
         saveData()
         print("Question added.")
-    elif delete:
-        if qestion_exists:
-            questions.pop(location)
-            print("Question removed.")
-            saveData()
-            return
-        print("Question doesn't exist.")
+
 
 @cmd.command(help="Starts a quiz session.")
 def start():
