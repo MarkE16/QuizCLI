@@ -1,10 +1,11 @@
 import uuid
 
 class Question:
-    def __init__(self, question: str, answer: str) -> None:
+    def __init__(self, question: str, answer: str, answered=False) -> None:
         self.question: str = question
         self.answer: str = answer
         self.id: str = str(uuid.uuid4())
+        self.answered: bool = answered
 
     def __str__(self):
         return (
@@ -12,9 +13,9 @@ class Question:
             f"Answer: {self.answer}\n"
         )
 
-    def __repr__(self):
-        return {
-            "question": self.question,
-            "answer": self.answer,
-            "id": self.id
-        }
+    # def __repr__(self):
+    #     return {
+    #         "question": self.question,
+    #         "answer": self.answer,
+    #         "id": self.id
+    #     }
