@@ -1,11 +1,49 @@
+import os
+
 from classes.Question import Question
 from json import dump, load, JSONDecodeError
+from uuid import uuid4
+from os import remove, makedirs, removedirs
+from os.path import exists
 
 
 class Quiz:
-    def __init__(self, questions: list[Question]=[]) -> None:
+    def __init__(self, questions: list[Question] = None, test_object: bool = False) -> None:
+        if questions is None:
+            questions = []
         self.questions: list[Question] = questions
         self.score: int = 0
+        """
+        This value is used to determine whether or not to delete the saved questions file when the Quiz object is
+        destructed. This only exists for testing purposes.
+        """
+        self.test_object: bool = test_object
+
+        self.saved_questions_location: str
+
+        if test_object:
+            if not exists("./test_data"):
+                makedirs("./test_data")
+            self.saved_questions_location = "./test_data/TEST_q_" + str(uuid4()) + ".json"
+            f = open(self.saved_questions_location, "x")
+            f.close()
+        else:
+            if exists("./data"):
+                for file in os.listdir("./data"):
+                    if file.endswith(".json") and file.startswith("q_"):
+                        self.saved_questions_location = "./data/" + file
+                        break
+            else:
+                makedirs("./data")
+                self.saved_questions_location = "./data/q_" + str(uuid4()) + ".json"
+                f = open(self.saved_questions_location, "x")
+                f.close()
+
+    def __del__(self) -> None:
+        if self.test_object:
+            for file in os.listdir("./test_data"):
+                remove("./test_data/" + file)
+            removedirs("./test_data")
 
     def addQuestion(self, question: Question) -> None:
         """
@@ -44,6 +82,14 @@ class Quiz:
         :return: `getQuestions` returns a list of Question objects. If there are no questions, it returns an empty list.
         """
         return self.questions
+
+    def getNumberOfQuestions(self) -> int:
+        """
+        Returns the number of questions in the array of questions.
+
+        :return: `getNumberOfQuestions` returns an integer.
+        """
+        return len(self.questions)
 
     def getRandomQuestion(self) -> Question:
         """
@@ -88,7 +134,7 @@ class Quiz:
 
         :return: `save` returns None.
         """
-        with open("data/questions.json", "w") as f:
+        with open(self.saved_questions_location, "w") as f:
             jsonSerialized = list(map((lambda question: question.__dict__), self.questions))
             dump(jsonSerialized, f, indent=2)
 
@@ -98,7 +144,7 @@ class Quiz:
 
         :return: `load` returns None.
         """
-        with open("data/questions.json", "r") as f:
+        with open(self.saved_questions_location, "r") as f:
             jsonDeserialized = []
             try:
                 jsonDeserialized = load(f)
