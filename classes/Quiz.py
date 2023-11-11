@@ -12,7 +12,6 @@ class Quiz:
         if questions is None:
             questions = []
         self.questions: list[Question] = questions
-        self.score: int = 0
         """
         This value is used to determine whether or not to delete the saved questions file when the Quiz object is
         destructed. This only exists for testing purposes.
@@ -52,6 +51,9 @@ class Quiz:
         :param question: A Question object.
         :return: `addQuestion` returns None.
         """
+
+        if question.__class__ is not Question:
+            raise TypeError(question.__class__.__name__ + " is not a Question object.")
         self.questions.append(question)
 
     def removeQuestion(self, question: Question) -> None:
@@ -61,6 +63,8 @@ class Quiz:
         :param question: A Question object.
         :return: `removeQuestion` returns None.
         """
+        if question.__class__ is not Question:
+            raise TypeError(question.__class__.__name__ + " is not a Question object.")
         self.questions.remove(question)
 
     def getQuestion(self, text: str) -> Question | None:
@@ -108,14 +112,6 @@ class Quiz:
         """
         return len(list(filter((lambda question: question.answered), self.questions)))
 
-    def incrementScore(self) -> None:
-        """
-        Increments the score by 1.
-
-        :return: `incrementScore` returns None.
-        """
-        self.score += 1
-
     def getResults(self) -> dict[str, int]:
         """
         Returns a dictionary containing the number of correct and incorrect answers.
@@ -123,14 +119,17 @@ class Quiz:
         :return: `getResults` returns a dictionary with the keys `correct` and `incorrect`, both of which containing
         integers.
         """
+
+        correct = len(list(filter((lambda question: question.answered_correctly), self.questions)))
+
         return {
-            "correct": self.score,
-            "incorrect": self.getTotalAnswered() - self.score,
+            "correct": correct,
+            "incorrect": self.getTotalAnswered() - correct,
         }
 
     def save(self) -> None:
         """
-        Saves the current array of questions to an external JSON called `questions.json`.
+        Saves the current array of questions to the external JSON.
 
         :return: `save` returns None.
         """
@@ -140,7 +139,7 @@ class Quiz:
 
     def load(self) -> None:
         """
-        Loads the current array of questions from an external JSON called `questions.json`.
+        Loads the current array of questions from the external JSON.
 
         :return: `load` returns None.
         """
@@ -150,7 +149,7 @@ class Quiz:
                 jsonDeserialized = load(f)
             except JSONDecodeError:
                 return
-            self.questions = list(map((lambda question: Question(question['question'], question['answer'], question['answered'])), jsonDeserialized))
+            self.questions = list(map((lambda question: Question(question['question'], question['answer'], question['answered'], question['answered_correctly'])), jsonDeserialized))
 
     def setQuestionsToUnanswered(self) -> None:
         """
@@ -159,4 +158,5 @@ class Quiz:
         :return: `setQuestionsToUnanswered` returns None.
         """
         for question in self.questions:
-            question.answered = False
+            question.set_answered(False)
+            question.set_answered_correctly(False)

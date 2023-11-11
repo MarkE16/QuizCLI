@@ -2,7 +2,15 @@
   {
     "question": "Who is cool?",
     "answer": "null",
-    "id": "675351d4-f79d-455d-8b13-392d43f81ea0",
-    "answered": false
+    "id": "e6f3fe29-af10-490d-861a-7ee8fa4c4e42",
+    "answered": false,
+    "answered_correctly": false
+  },
+  {
+    "question": "Who is the coolest",
+    "answer": "I am.",
+    "id": "e7bc1316-415b-4d70-a9c3-b215bdada143",
+    "answered": false,
+    "answered_correctly": false
   }
 ]

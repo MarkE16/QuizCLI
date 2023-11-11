@@ -11,7 +11,6 @@ def printResults(user_answer, current_question_answer) -> None:
     if user_answer != current_question_answer:
         print("Incorrect.")
     else:
-        questions.incrementScore()
         print("Correct.")
     print("The correct answer was: \"" + current_question_answer + "\".\nYour answer was: \"" + user_answer + "\".")
     input("Press enter to continue.")
@@ -62,13 +61,14 @@ def start():
 
     system("cls")  # Clear the screen.
 
+    if questions_answered > 0:
+        print("[!] Picking up where you left off...")
 
     while questions_answered < length_of_all_questions:
         selected_question = questions.getRandomQuestion()
 
         while selected_question.answered:
             selected_question = questions.getRandomQuestion()
-
 
         print(
             f"QUESTION #{questions_answered + 1}:\n" +
@@ -80,11 +80,13 @@ def start():
             break
 
         if answer == "exit":
+            print("[!] Your progress has been saved for you to return to.")
             exit(0)
 
         printResults(answer, selected_question.answer)
 
-        selected_question.answered = True
+        selected_question.set_answered_correctly(answer == selected_question.answer)
+        selected_question.set_answered(True)
         questions_answered = questions.getTotalAnswered()
         questions.save()
         system("cls")  # Clear the screen.
